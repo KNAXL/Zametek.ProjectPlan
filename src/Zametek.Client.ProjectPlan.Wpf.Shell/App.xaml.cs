@@ -1,15 +1,18 @@
 ﻿using Prism.Ioc;
 using Prism.Modularity;
+using Prism.Regions;
 using Prism.Unity;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Markup;
+using Xceed.Wpf.AvalonDock;
 using Zametek.Access.ProjectPlan;
 using Zametek.Contract.ProjectPlan;
 using Zametek.Engine.ProjectPlan;
 using Zametek.Manager.ProjectPlan;
+using Zametek.PrismEx.AvalonDock;
 
 namespace Zametek.Client.ProjectPlan.Wpf.Shell
 {
@@ -39,13 +42,20 @@ namespace Zametek.Client.ProjectPlan.Wpf.Shell
             containerRegistry.RegisterSingleton<IMetricsManagerViewModel, MetricsManagerViewModel>();
             containerRegistry.RegisterSingleton<IArrowGraphManagerViewModel, ArrowGraphManagerViewModel>();
             containerRegistry.RegisterSingleton<IGanttChartManagerViewModel, GanttChartManagerViewModel>();
-            containerRegistry.RegisterSingleton<IActivitiesManagerViewModel, ActivitiesManagerViewModel>();
+            containerRegistry.Register<IActivitiesManagerViewModel, ActivitiesManagerViewModel>();
             containerRegistry.RegisterSingleton<IMainViewModel, MainViewModel>();
+
+            containerRegistry.RegisterSingleton<IApplicationCommands, ApplicationCommands>();
         }
 
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
         {
             moduleCatalog.AddModule<ClientWpfModule>();
+        }
+
+        protected override void ConfigureRegionAdapterMappings(RegionAdapterMappings regionAdapterMappings)
+        {
+            regionAdapterMappings.RegisterMapping(typeof(DockingManager), Container.Resolve<DockingManagerRegionAdapter>());
         }
 
         protected override void OnStartup(StartupEventArgs e)

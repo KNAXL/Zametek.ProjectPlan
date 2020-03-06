@@ -6,52 +6,22 @@ namespace Zametek.Client.ProjectPlan.Wpf
 {
     public interface IResourceChartManagerViewModel
     {
-        IInteractionRequest NotificationInteractionRequest
-        {
-            get;
-        }
+        IInteractionRequest NotificationInteractionRequest { get; }
 
-        bool IsBusy
-        {
-            get;
-        }
+        bool IsBusy { get; }
 
-        bool HasStaleOutputs
-        {
-            get;
-        }
+        bool HasStaleOutputs { get; }
 
-        bool ExportResourceChartAsCosts
-        {
-            get;
-            set;
-        }
+        bool ExportResourceChartAsCosts { get; set; }
 
-        PlotModel ResourceChartPlotModel
-        {
-            get;
-        }
+        PlotModel ResourceChartPlotModel { get; }
 
-        int ResourceChartOutputWidth
-        {
-            get;
-            set;
-        }
+        int ResourceChartOutputWidth { get; set; }
 
-        int ResourceChartOutputHeight
-        {
-            get;
-            set;
-        }
+        int ResourceChartOutputHeight { get; set; }
 
-        ICommand CopyResourceChartToClipboardCommand
-        {
-            get;
-        }
+        ICommand CopyResourceChartToClipboardCommand { get; }
 
-        ICommand ExportResourceChartToCsvCommand
-        {
-            get;
-        }
+        ICommand ExportResourceChartToCsvCommand { get; }
     }
 }

@@ -100,6 +100,9 @@
     <Window.InputBindings>
         <KeyBinding Gesture="Ctrl+O" Command="{Binding Path=OpenProjectPlanFileCommand, Mode=OneWay}"/>
         <KeyBinding Gesture="Ctrl+S" Command="{Binding Path=SaveProjectPlanFileCommand, Mode=OneWay}"/>
+
+        <KeyBinding Gesture="Ctrl+Z" Command="{Binding Path=ApplicationCommands.UndoCommand, Mode=OneWay}"/>
+        
         <KeyBinding Gesture="Ctrl+R" Command="{Binding Path=OpenResourceSettingsCommand, Mode=OneWay}"/>
         <KeyBinding Gesture="Ctrl+G" Command="{Binding Path=OpenArrowGraphSettingsCommand, Mode=OneWay}"/>
         <KeyBinding Gesture="Ctrl+D" Command="{Binding Path=ToggleShowDatesCommand, Mode=OneWay}"/>
@@ -197,7 +200,16 @@
             <Grid/>
         </DockPanel>
 
-        <xcad:DockingManager x:Name="DockManager"
+
+
+
+
+        <xcad:DockingManager BorderBrush="Black" BorderThickness="1" prism:RegionManager.RegionName="ContentRegion" />
+
+
+
+
+        <!--<xcad:DockingManager x:Name="DockManager"
                              AllowMixedOrientation="True"
                              BorderBrush="Black"
                              BorderThickness="1">
@@ -243,7 +255,7 @@
                     </xcad:LayoutPanel>
                 </xcad:LayoutPanel>
             </xcad:LayoutRoot>
-        </xcad:DockingManager>
+        </xcad:DockingManager>-->
 
         <DockPanel.Style>
             <Style TargetType="DockPanel">

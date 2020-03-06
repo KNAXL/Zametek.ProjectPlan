@@ -328,6 +328,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\ApplicationCommands.cs" />
+    <Compile Include="Commands\IApplicationCommands.cs" />
     <Compile Include="ClientWpfModule.cs" />
     <Compile Include="Contracts\IActivitiesManagerViewModel.cs" />
     <Compile Include="Contracts\IArrowGraphManagerViewModel.cs" />
@@ -370,6 +372,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Utilities\LimitedSizeStack.cs" />
     <Compile Include="Utilities\ProjectSettingService.cs" />
     <Compile Include="Utilities\ChartHelper.cs" />
     <Compile Include="Utilities\DateTimeCalculator.cs" />
@@ -380,6 +383,7 @@
     <Compile Include="Utilities\LocalizedDescriptionAttribute.cs" />
     <Compile Include="Utilities\OpenSave.cs" />
     <Compile Include="Utilities\PrismExtensions.cs" />
+    <Compile Include="Utilities\UndoRedo\UndoRedoCommandPair.cs" />
     <Compile Include="ViewModels\ActivityManagement\ActivitiesManagerViewModel.cs" />
     <Compile Include="ViewModels\ActivityManagement\DependenciesStringValidationRule.cs" />
     <Compile Include="ViewModels\ActivityManagement\ManagedActivityViewModel.cs" />

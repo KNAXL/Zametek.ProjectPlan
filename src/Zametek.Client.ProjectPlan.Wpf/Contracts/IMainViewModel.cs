@@ -7,149 +7,63 @@ namespace Zametek.Client.ProjectPlan.Wpf
 {
     public interface IMainViewModel
     {
-        IInteractionRequest ConfirmationInteractionRequest
-        {
-            get;
-        }
+        IInteractionRequest ConfirmationInteractionRequest { get; }
 
-        IInteractionRequest NotificationInteractionRequest
-        {
-            get;
-        }
+        IInteractionRequest NotificationInteractionRequest { get; }
 
-        IInteractionRequest ResourceSettingsManagerInteractionRequest
-        {
-            get;
-        }
+        IInteractionRequest ResourceSettingsManagerInteractionRequest { get; }
 
-        IInteractionRequest ArrowGraphSettingsManagerInteractionRequest
-        {
-            get;
-        }
+        IInteractionRequest ArrowGraphSettingsManagerInteractionRequest { get; }
 
-        IInteractionRequest AboutInteractionRequest
-        {
-            get;
-        }
+        IInteractionRequest AboutInteractionRequest { get; }
 
-        bool IsBusy
-        {
-            get;
-        }
+        bool IsBusy { get; }
 
-        string Title
-        {
-            get;
-        }
+        string Title { get; }
 
-        bool IsProjectUpdated
-        {
-            get;
-        }
+        bool IsProjectUpdated { get; }
 
-        DateTime ProjectStart
-        {
-            get;
-            set;
-        }
+        DateTime ProjectStart { get; set; }
 
-        bool ShowDates
-        {
-            get;
-            set;
-        }
+        bool ShowDates { get; set; }
 
-        bool UseBusinessDays
-        {
-            get;
-            set;
-        }
+        bool UseBusinessDays { get; set; }
 
-        bool AutoCompile
-        {
-            get;
-            set;
-        }
+        bool AutoCompile { get; set; }
 
-        Common.Project.v0_1_0.ArrowGraphSettingsDto ArrowGraphSettingsDto
-        {
-            get;
-        }
+        Common.Project.v0_1_0.ArrowGraphSettingsDto ArrowGraphSettingsDto { get; }
 
-        Common.Project.v0_1_0.ResourceSettingsDto ResourceSettingsDto
-        {
-            get;
-        }
+        Common.Project.v0_1_0.ResourceSettingsDto ResourceSettingsDto { get; }
 
-        ICommand OpenProjectPlanFileCommand
-        {
-            get;
-        }
+        IApplicationCommands ApplicationCommands { get; }
 
-        ICommand SaveProjectPlanFileCommand
-        {
-            get;
-        }
+        ICommand OpenProjectPlanFileCommand { get; }
 
-        ICommand SaveAsProjectPlanFileCommand
-        {
-            get;
-        }
+        ICommand SaveProjectPlanFileCommand { get; }
 
-        ICommand ImportMicrosoftProjectCommand
-        {
-            get;
-        }
+        ICommand SaveAsProjectPlanFileCommand { get; }
 
-        ICommand CloseProjectCommand
-        {
-            get;
-        }
+        ICommand ImportMicrosoftProjectCommand { get; }
 
-        ICommand OpenResourceSettingsCommand
-        {
-            get;
-        }
+        ICommand CloseProjectCommand { get; }
 
-        ICommand OpenArrowGraphSettingsCommand
-        {
-            get;
-        }
+        ICommand OpenResourceSettingsCommand { get; }
 
-        ICommand ToggleShowDatesCommand
-        {
-            get;
-        }
+        ICommand OpenArrowGraphSettingsCommand { get; }
 
-        ICommand ToggleUseBusinessDaysCommand
-        {
-            get;
-        }
+        ICommand ToggleShowDatesCommand { get; }
 
-        ICommand CalculateResourcedCyclomaticComplexityCommand
-        {
-            get;
-        }
+        ICommand ToggleUseBusinessDaysCommand { get; }
 
-        ICommand CompileCommand
-        {
-            get;
-        }
+        ICommand CalculateResourcedCyclomaticComplexityCommand { get; }
 
-        ICommand TransitiveReductionCommand
-        {
-            get;
-        }
+        ICommand CompileCommand { get; }
 
-        ICommand OpenHyperLinkCommand
-        {
-            get;
-        }
+        ICommand TransitiveReductionCommand { get; }
 
-        ICommand OpenAboutCommand
-        {
-            get;
-        }
+        ICommand OpenHyperLinkCommand { get; }
+
+        ICommand OpenAboutCommand { get; }
 
         Task DoOpenProjectPlanFileAsync(string fileName = null);
     }

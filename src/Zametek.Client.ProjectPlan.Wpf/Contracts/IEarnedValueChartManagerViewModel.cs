@@ -6,46 +6,20 @@ namespace Zametek.Client.ProjectPlan.Wpf
 {
     public interface IEarnedValueChartManagerViewModel
     {
-        IInteractionRequest NotificationInteractionRequest
-        {
-            get;
-        }
+        IInteractionRequest NotificationInteractionRequest { get; }
 
-        bool IsBusy
-        {
-            get;
-        }
+        bool IsBusy { get; }
 
-        bool HasStaleOutputs
-        {
-            get;
-        }
+        bool HasStaleOutputs { get; }
 
-        PlotModel EarnedValueChartPlotModel
-        {
-            get;
-        }
+        PlotModel EarnedValueChartPlotModel { get; }
 
-        int EarnedValueChartOutputWidth
-        {
-            get;
-            set;
-        }
+        int EarnedValueChartOutputWidth { get; set; }
 
-        int EarnedValueChartOutputHeight
-        {
-            get;
-            set;
-        }
+        int EarnedValueChartOutputHeight { get; set; }
 
-        ICommand CopyEarnedValueChartToClipboardCommand
-        {
-            get;
-        }
+        ICommand CopyEarnedValueChartToClipboardCommand { get; }
 
-        ICommand ExportEarnedValueChartToCsvCommand
-        {
-            get;
-        }
+        ICommand ExportEarnedValueChartToCsvCommand { get; }
     }
 }

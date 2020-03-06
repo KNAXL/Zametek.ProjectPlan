@@ -5,46 +5,20 @@ namespace Zametek.Client.ProjectPlan.Wpf
 {
     public interface IResourceSettingsManagerViewModel
     {
-        double DefaultUnitCost
-        {
-            get;
-            set;
-        }
+        double DefaultUnitCost { get; set; }
 
-        bool DisableResources
-        {
-            get;
-            set;
-        }
+        bool DisableResources { get; set; }
 
-        bool ActivateResources
-        {
-            get;
-        }
+        bool ActivateResources { get; }
 
-        ObservableCollection<ManagedResourceViewModel> Resources
-        {
-            get;
-        }
+        ObservableCollection<ManagedResourceViewModel> Resources { get; }
 
-        ManagedResourceViewModel SelectedResource
-        {
-            get;
-        }
+        ManagedResourceViewModel SelectedResource { get; }
 
-        ICommand SetSelectedManagedResourcesCommand
-        {
-            get;
-        }
+        ICommand SetSelectedManagedResourcesCommand { get; }
 
-        ICommand AddManagedResourceCommand
-        {
-            get;
-        }
+        ICommand AddManagedResourceCommand { get; }
 
-        ICommand RemoveManagedResourceCommand
-        {
-            get;
-        }
+        ICommand RemoveManagedResourceCommand { get; }
     }
 }

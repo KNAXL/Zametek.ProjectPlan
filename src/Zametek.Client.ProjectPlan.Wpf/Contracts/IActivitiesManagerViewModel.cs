@@ -26,6 +26,8 @@ namespace Zametek.Client.ProjectPlan.Wpf
 
         ManagedActivityViewModel SelectedActivity { get; }
 
+        IApplicationCommands ApplicationCommands { get; }
+
         ICommand SetSelectedManagedActivitiesCommand { get; }
 
         ICommand AddManagedActivityCommand { get; }

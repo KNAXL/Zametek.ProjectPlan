@@ -1,11 +1,30 @@
 ﻿using Prism;
+using Prism.Regions;
 using System;
 
 namespace Zametek.Client.ProjectPlan.Wpf
 {
     public partial class ActivitiesManagerView
-        : IActiveAware
+        : IActiveAware, INavigationAware
     {
+
+
+        public void OnNavigatedTo(NavigationContext navigationContext)
+        {
+            
+        }
+
+        public bool IsNavigationTarget(NavigationContext navigationContext)
+        {
+            return true;
+        }
+
+        public void OnNavigatedFrom(NavigationContext navigationContext)
+        {
+        }
+
+
+
         #region Fields
 
         private bool m_IsActive;

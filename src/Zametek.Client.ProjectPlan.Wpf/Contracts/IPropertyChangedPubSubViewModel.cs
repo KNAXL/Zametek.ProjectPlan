@@ -4,10 +4,7 @@ namespace Zametek.Client.ProjectPlan.Wpf
 {
     public interface IPropertyChangedPubSubViewModel
     {
-        Guid InstanceId
-        {
-            get;
-        }
+        Guid InstanceId { get; }
 
         bool ContainsReadableProperty(string propertyName);
     }

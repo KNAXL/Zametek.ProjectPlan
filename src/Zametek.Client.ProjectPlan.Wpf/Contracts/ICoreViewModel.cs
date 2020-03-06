@@ -52,11 +52,11 @@ namespace Zametek.Client.ProjectPlan.Wpf
 
         double? TotalCost { get; set; }
 
-        void AddManagedActivity();
+        IDependentActivity<int> AddManagedActivity();
 
-        void AddManagedActivity(IDependentActivity<int> dependentActivity);
+        HashSet<IDependentActivity<int>> AddManagedActivities(HashSet<IDependentActivity<int>> dependentActivities);
 
-        void RemoveManagedActivities(HashSet<int> dependentActivities);
+        HashSet<IDependentActivity<int>> RemoveManagedActivities(HashSet<int> dependentActivityIds);
 
         void ClearManagedActivities();
 

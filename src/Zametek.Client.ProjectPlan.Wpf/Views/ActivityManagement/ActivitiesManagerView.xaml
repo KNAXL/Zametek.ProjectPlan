@@ -88,13 +88,13 @@
             </Button>
 
             <Button DockPanel.Dock="Right"
-                        IsTabStop="True"
-                        Margin="7,0,0,0"
-                        Height="25" Width="75"
-                        VerticalAlignment="Center"
-                        VerticalContentAlignment="Center"
-                        Command="{Binding Path=AddManagedActivityCommand, Mode=OneWay}"
-                        Content="{x:Static local:Properties.Resources.Label_AddManagedActivity}">
+                    IsTabStop="True"
+                    Margin="7,0,0,0"
+                    Height="25" Width="75"
+                    VerticalAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    Command="{Binding Path=AddManagedActivityCommand, Mode=OneWay}"
+                    Content="{x:Static local:Properties.Resources.Label_AddManagedActivity}">
             </Button>
             <Grid/>
         </DockPanel>

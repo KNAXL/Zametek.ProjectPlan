@@ -1,4 +1,5 @@
-﻿using Prism.Commands;
+﻿using Prism;
+using Prism.Commands;
 using Prism.Events;
 using Prism.Interactivity.InteractionRequest;
 using System;
@@ -8,15 +9,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Zametek.Maths.Graphs;
 
 namespace Zametek.Client.ProjectPlan.Wpf
 {
     public class ActivitiesManagerViewModel
-        : PropertyChangedPubSubViewModel, IActivitiesManagerViewModel
+        : PropertyChangedPubSubViewModel, IActivitiesManagerViewModel, IActiveAware
     {
         #region Fields
 
         private readonly object m_Lock;
+
+        private const int c_MaxUndoRedoStackSize = 10;
+        private readonly LimitedSizeStack<UndoRedoCommandPair> m_UndoStack;
+        private readonly LimitedSizeStack<UndoRedoCommandPair> m_RedoStack;
 
         private readonly ICoreViewModel m_CoreViewModel;
         private readonly IEventAggregator m_EventService;
@@ -28,17 +34,23 @@ namespace Zametek.Client.ProjectPlan.Wpf
         private SubscriptionToken m_UseBusinessDaysUpdatedSubscriptionToken;
         private SubscriptionToken m_ShowDatesUpdatedSubscriptionToken;
 
+        private bool m_IsActive;
+
         #endregion
 
         #region Ctors
 
         public ActivitiesManagerViewModel(
             ICoreViewModel coreViewModel,
+            IApplicationCommands applicationCommands,
             IEventAggregator eventService)
             : base(eventService)
         {
             m_Lock = new object();
+            m_UndoStack = new LimitedSizeStack<UndoRedoCommandPair>(c_MaxUndoRedoStackSize);
+            m_RedoStack = new LimitedSizeStack<UndoRedoCommandPair>(c_MaxUndoRedoStackSize);
             m_CoreViewModel = coreViewModel ?? throw new ArgumentNullException(nameof(coreViewModel));
+            ApplicationCommands = applicationCommands ?? throw new ArgumentNullException(nameof(applicationCommands));
             m_EventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
 
             SelectedActivities = new ObservableCollection<ManagedActivityViewModel>();
@@ -115,6 +127,16 @@ namespace Zametek.Client.ProjectPlan.Wpf
             return true;
         }
 
+        private async void AddManagedActivity(IEnumerable<IDependentActivity<int>> dependentActivities)
+        {
+            await DoAddManagedActivityAsync(dependentActivities);
+        }
+
+        private bool CanAddManagedActivity(IEnumerable<IDependentActivity<int>> dependentActivities)
+        {
+            return !SelectedActivities.Intersect(dependentActivities).Any();
+        }
+
         private DelegateCommandBase InternalRemoveManagedActivityCommand
         {
             get;
@@ -129,6 +151,36 @@ namespace Zametek.Client.ProjectPlan.Wpf
         private bool CanRemoveManagedActivity()
         {
             return SelectedActivities.Any();
+        }
+
+        private async void RemoveManagedActivity(IEnumerable<IDependentActivity<int>> selectedActivities)
+        {
+            await DoRemoveManagedActivityAsync(selectedActivities);
+        }
+
+        private bool CanRemoveManagedActivity(IEnumerable<IDependentActivity<int>> selectedActivities)
+        {
+            return selectedActivities?.Any() ?? false;
+        }
+
+        private DelegateCommand UndoCommand
+        {
+            get;
+            set;
+        }
+
+        private void Undo()
+        {
+            lock (m_Lock)
+            {
+                UndoRedoCommandPair undoRedoCommandPair = m_UndoStack.Pop();
+                undoRedoCommandPair.UndoCommand.Execute(undoRedoCommandPair.UndoParameter);
+            }
+        }
+
+        private bool CanUndo()
+        {
+            return m_UndoStack.Any();
         }
 
         #endregion
@@ -146,6 +198,9 @@ namespace Zametek.Client.ProjectPlan.Wpf
             RemoveManagedActivityCommand =
                 InternalRemoveManagedActivityCommand =
                     new DelegateCommand(RemoveManagedActivity, CanRemoveManagedActivity);
+            UndoCommand = new DelegateCommand(Undo, CanUndo);
+
+            ApplicationCommands.UndoCommand.RegisterCommand(UndoCommand);
         }
 
         private void RaiseCanExecuteChangedAllCommands()
@@ -153,6 +208,7 @@ namespace Zametek.Client.ProjectPlan.Wpf
             InternalSetSelectedManagedActivitiesCommand.RaiseCanExecuteChanged();
             InternalAddManagedActivityCommand.RaiseCanExecuteChanged();
             InternalRemoveManagedActivityCommand.RaiseCanExecuteChanged();
+            UndoCommand.RaiseCanExecuteChanged();
         }
 
         private void SubscribeToEvents()
@@ -298,6 +354,40 @@ namespace Zametek.Client.ProjectPlan.Wpf
             }
         }
 
+        public async Task DoAddManagedActivityAsync(IEnumerable<IDependentActivity<int>> selectedActivities)
+        {
+            if (selectedActivities == null)
+            {
+                throw new ArgumentNullException(nameof(selectedActivities));
+            }
+            try
+            {
+                IsBusy = true;
+
+                lock (m_Lock)
+                {
+                    IEnumerable<IDependentActivity<int>> dependentActivities = selectedActivities.ToList();
+                    m_CoreViewModel.AddManagedActivities(new HashSet<IDependentActivity<int>>(dependentActivities));
+                }
+
+                HasStaleOutputs = true;
+                IsProjectUpdated = true;
+
+                await RunAutoCompileAsync();
+            }
+            catch (Exception ex)
+            {
+                DispatchNotification(
+                    Properties.Resources.Title_Error,
+                    ex.Message);
+            }
+            finally
+            {
+                IsBusy = false;
+                RaiseCanExecuteChangedAllCommands();
+            }
+        }
+
         public async Task DoRemoveManagedActivityAsync()
         {
             try
@@ -306,7 +396,55 @@ namespace Zametek.Client.ProjectPlan.Wpf
 
                 lock (m_Lock)
                 {
-                    var activityIds = new HashSet<int>(SelectedActivities.Select(x => x.Id));
+                    IEnumerable<IDependentActivity<int>> dependentActivities = SelectedActivities.ToList();
+                    var activityIds = new HashSet<int>(dependentActivities.Select(x => x.Id));
+                    if (!activityIds.Any())
+                    {
+                        return;
+                    }
+                    m_CoreViewModel.RemoveManagedActivities(activityIds);
+                    m_UndoStack.Push(new UndoRedoCommandPair(
+                        new DelegateCommand<IEnumerable<IDependentActivity<int>>>(AddManagedActivity, CanAddManagedActivity),
+                        dependentActivities,
+                        new DelegateCommand<IEnumerable<IDependentActivity<int>>>(RemoveManagedActivity, CanRemoveManagedActivity),
+                        dependentActivities));
+                }
+
+                HasStaleOutputs = true;
+                IsProjectUpdated = true;
+
+                await RunAutoCompileAsync();
+            }
+            catch (Exception ex)
+            {
+                DispatchNotification(
+                    Properties.Resources.Title_Error,
+                    ex.Message);
+            }
+            finally
+            {
+                SelectedActivities.Clear();
+                RaisePropertyChanged(nameof(Activities));
+                RaisePropertyChanged(nameof(SelectedActivities));
+                IsBusy = false;
+                RaiseCanExecuteChangedAllCommands();
+            }
+        }
+
+        public async Task DoRemoveManagedActivityAsync(IEnumerable<IDependentActivity<int>> selectedActivities)
+        {
+            if (selectedActivities == null)
+            {
+                throw new ArgumentNullException(nameof(selectedActivities));
+            }
+            try
+            {
+                IsBusy = true;
+
+                lock (m_Lock)
+                {
+                    IEnumerable<IDependentActivity<int>> dependentActivities = selectedActivities.ToList();
+                    var activityIds = new HashSet<int>(dependentActivities.Select(x => x.Id));
                     if (!activityIds.Any())
                     {
                         return;
@@ -432,6 +570,11 @@ namespace Zametek.Client.ProjectPlan.Wpf
             }
         }
 
+        public IApplicationCommands ApplicationCommands
+        {
+            get;
+        }
+
         public ICommand SetSelectedManagedActivitiesCommand
         {
             get;
@@ -448,6 +591,28 @@ namespace Zametek.Client.ProjectPlan.Wpf
         {
             get;
             private set;
+        }
+
+        #endregion
+
+        #region IActiveAware Members
+
+        public event EventHandler IsActiveChanged;
+
+        public bool IsActive
+        {
+            get
+            {
+                return m_IsActive;
+            }
+            set
+            {
+                if (m_IsActive != value)
+                {
+                    m_IsActive = value;
+                    IsActiveChanged?.Invoke(this, new EventArgs());
+                }
+            }
         }
 
         #endregion

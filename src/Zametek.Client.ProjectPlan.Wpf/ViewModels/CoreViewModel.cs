@@ -490,42 +490,53 @@ namespace Zametek.Client.ProjectPlan.Wpf
             }
         }
 
-        public void AddManagedActivity()
+        public IDependentActivity<int> AddManagedActivity()
         {
             lock (m_Lock)
             {
                 var activityId = m_VertexGraphCompiler.GetNextActivityId();
-                AddManagedActivity(new DependentActivity<int>(activityId, 0));
+                var set = new HashSet<IDependentActivity<int>>();
+                set.Add(new DependentActivity<int>(activityId, 0));
+                HashSet<IDependentActivity<int>> output = AddManagedActivities(set);
+                return output.SingleOrDefault();
             }
         }
 
-        public void AddManagedActivity(IDependentActivity<int> dependentActivity)
+        public HashSet<IDependentActivity<int>> AddManagedActivities(HashSet<IDependentActivity<int>> dependentActivities)
         {
-            if (dependentActivity == null)
+            if (dependentActivities == null)
             {
-                throw new ArgumentNullException(nameof(dependentActivity));
+                throw new ArgumentNullException(nameof(dependentActivities));
             }
 
             lock (m_Lock)
             {
-                var dateTimeCalculator = new DateTimeCalculator();
-                dateTimeCalculator.UseBusinessDays(UseBusinessDays);
+                var output = new HashSet<IDependentActivity<int>>();
 
-                var activity = new ManagedActivityViewModel(
-                    dependentActivity,
-                    ProjectStart,
-                    ResourceSettingsDto.Resources,
-                    dateTimeCalculator,
-                    m_EventService);
-
-                if (m_VertexGraphCompiler.AddActivity(activity))
+                foreach (IDependentActivity<int> dependentActivity in dependentActivities)
                 {
-                    Activities.Add(activity);
+                    var dateTimeCalculator = new DateTimeCalculator();
+                    dateTimeCalculator.UseBusinessDays(UseBusinessDays);
+
+                    var activity = new ManagedActivityViewModel(
+                        dependentActivity,
+                        ProjectStart,
+                        ResourceSettingsDto.Resources,
+                        dateTimeCalculator,
+                        m_EventService);
+
+                    if (m_VertexGraphCompiler.AddActivity(activity))
+                    {
+                        Activities.Add(activity);
+                        output.Add(activity);
+                    }
                 }
+
+                return output;
             }
         }
 
-        public void RemoveManagedActivities(HashSet<int> dependentActivityIds)
+        public HashSet<IDependentActivity<int>> RemoveManagedActivities(HashSet<int> dependentActivityIds)
         {
             if (dependentActivityIds == null)
             {
@@ -534,6 +545,8 @@ namespace Zametek.Client.ProjectPlan.Wpf
 
             lock (m_Lock)
             {
+                var output = new HashSet<IDependentActivity<int>>();
+
                 IEnumerable<ManagedActivityViewModel> dependentActivities = Activities.Where(x => dependentActivityIds.Contains(x.Id)).ToList();
 
                 foreach (ManagedActivityViewModel dependentActivity in dependentActivities)
@@ -541,8 +554,11 @@ namespace Zametek.Client.ProjectPlan.Wpf
                     if (m_VertexGraphCompiler.RemoveActivity(dependentActivity.Id))
                     {
                         Activities.Remove(dependentActivity);
+                        output.Add(dependentActivity);
                     }
                 }
+
+                return output;
             }
         }
 

@@ -46,6 +46,7 @@ namespace Zametek.Client.ProjectPlan.Wpf
             ICoreViewModel coreViewModel,
             IFileDialogService fileDialogService,
             IProjectSettingService projectSettingService,
+            IApplicationCommands applicationCommands,
             IEventAggregator eventService)
             : base(eventService)
         {
@@ -53,6 +54,7 @@ namespace Zametek.Client.ProjectPlan.Wpf
             m_CoreViewModel = coreViewModel ?? throw new ArgumentNullException(nameof(coreViewModel));
             m_FileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
             m_ProjectSettingService = projectSettingService ?? throw new ArgumentNullException(nameof(projectSettingService));
+            ApplicationCommands = applicationCommands ?? throw new ArgumentNullException(nameof(applicationCommands));
             m_EventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
 
             m_NotificationInteractionRequest = new InteractionRequest<Notification>();
@@ -663,10 +665,7 @@ namespace Zametek.Client.ProjectPlan.Wpf
                 //SetTargetResources();
 
                 // Activities.
-                foreach (Common.Project.v0_1_0.DependentActivityDto dependentActivityDto in microsoftProjectDto.DependentActivities)
-                {
-                    m_CoreViewModel.AddManagedActivity(Common.Project.v0_1_0.DtoConverter.FromDto(dependentActivityDto));
-                }
+                m_CoreViewModel.AddManagedActivities(new HashSet<IDependentActivity<int>>(microsoftProjectDto.DependentActivities.Select(x => Common.Project.v0_1_0.DtoConverter.FromDto(x))));
             }
         }
 
@@ -694,10 +693,7 @@ namespace Zametek.Client.ProjectPlan.Wpf
 
                 // Activities.
                 // Be sure to do this after the resources and project start date have been added.
-                foreach (Common.Project.v0_1_0.DependentActivityDto dependentActivityDto in projectPlanDto.DependentActivities)
-                {
-                    m_CoreViewModel.AddManagedActivity(Common.Project.v0_1_0.DtoConverter.FromDto(dependentActivityDto));
-                }
+                m_CoreViewModel.AddManagedActivities(new HashSet<IDependentActivity<int>>(projectPlanDto.DependentActivities.Select(x => Common.Project.v0_1_0.DtoConverter.FromDto(x))));
 
                 m_CoreViewModel.UpdateActivitiesAllocatedToResources();
 
@@ -1350,6 +1346,11 @@ namespace Zametek.Client.ProjectPlan.Wpf
                     m_CoreViewModel.ResourceSettingsDto = value;
                 }
             }
+        }
+
+        public IApplicationCommands ApplicationCommands
+        {
+            get;
         }
 
         public ICommand OpenProjectPlanFileCommand
